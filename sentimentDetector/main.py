@@ -4,7 +4,8 @@ from ModelTrainer import ModelTrainer
 
 
 def main():
-    os.remove('senti_svc_model.pkl')
+    if(os.path.exists('senti_svc_model.pkl')):
+        os.remove('senti_svc_model.pkl')
     trainer = ModelTrainer()
     trainer.train_model()
 
