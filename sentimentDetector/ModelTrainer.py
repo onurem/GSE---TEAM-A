@@ -57,7 +57,7 @@ class ModelTrainer:
         else:
             return x, None, y, None
 
-    def train_model(self):
+    def train_model(self, model_path, vectorizer_path):
         text_col = 'tweet'
         label = 'class'
 
@@ -89,4 +89,5 @@ class ModelTrainer:
                                     y_test=y_test,
                                     y=y)
 
-        pickle.dump(clf, open('senti_svc_model.pkl', 'wb'))
+        pickle.dump(clf, open(model_path, 'wb'))
+        pickle.dump(tfidf_vector, open(vectorizer_path, 'wb'))
