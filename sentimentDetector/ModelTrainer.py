@@ -8,9 +8,11 @@ from sklearn.metrics import accuracy_score
 
 class ModelTrainer:
 
-    @staticmethod
-    def read_data():
-        return pd.read_csv("resources/auto_labled_data.csv")
+    def read_data(self):
+        df = pd.read_csv("resources/auto_labled_data.csv")
+        df['class'] = df['class'].apply(self.classification)
+        df = df.drop(columns=['Unnamed: 0', 'count', 'hate_speech', 'offensive_language', 'neither'])
+        return df
 
     @staticmethod
     def classification(x):
@@ -62,8 +64,6 @@ class ModelTrainer:
         label = 'class'
 
         df = self.read_data()
-        df['class'] = df['class'].apply(self.classification)
-        df = df.drop(columns=['Unnamed: 0', 'count', 'hate_speech', 'offensive_language', 'neither'])
 
         tfidf_vector = TfidfVectorizer(ngram_range=(1, 2),
                                        min_df=10,
