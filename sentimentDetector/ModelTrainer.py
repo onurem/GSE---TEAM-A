@@ -8,9 +8,11 @@ from sklearn.metrics import accuracy_score
 
 class ModelTrainer:
 
-    @staticmethod
-    def read_data():
-        return pd.read_csv("resources/auto_labled_data.csv")
+    def read_data(self):
+        df = pd.read_csv("resources/auto_labled_data.csv")
+        df['class'] = df['class'].apply(self.classification)
+        df = df.drop(columns=['Unnamed: 0', 'count', 'hate_speech', 'offensive_language', 'neither'])
+        return df
 
     @staticmethod
     def classification(x):
@@ -57,13 +59,11 @@ class ModelTrainer:
         else:
             return x, None, y, None
 
-    def train_model(self):
+    def train_model(self, model_path, vectorizer_path):
         text_col = 'tweet'
         label = 'class'
 
         df = self.read_data()
-        df['class'] = df['class'].apply(self.classification)
-        df = df.drop(columns=['Unnamed: 0', 'count', 'hate_speech', 'offensive_language', 'neither'])
 
         tfidf_vector = TfidfVectorizer(ngram_range=(1, 2),
                                        min_df=10,
@@ -89,4 +89,5 @@ class ModelTrainer:
                                     y_test=y_test,
                                     y=y)
 
-        pickle.dump(clf, open('senti_svc_model.pkl', 'wb'))
+        pickle.dump(clf, open(model_path, 'wb'))
+        pickle.dump(tfidf_vector, open(vectorizer_path, 'wb'))
