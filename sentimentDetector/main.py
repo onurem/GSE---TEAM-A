@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 from ModelTrainer import ModelTrainer
+from Predictor import Predictor
 
 
 def main():
@@ -13,6 +14,10 @@ def main():
 
     trainer = ModelTrainer()
     trainer.train_model(model_path, vectorizer_path)
+
+    predictor = Predictor(model_path, vectorizer_path)
+    prediction = predictor.predict('This may be some hatespeech')
+    print(prediction)
 
 
 if __name__ == '__main__':
