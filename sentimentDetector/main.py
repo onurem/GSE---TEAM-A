@@ -15,9 +15,19 @@ def main():
     trainer = ModelTrainer()
     trainer.train_model(model_path, vectorizer_path)
 
+    texts = [
+        'This may be some hatespeech',
+        'This may be fine text',
+        'Another text for testing'
+    ]
+
     predictor = Predictor(model_path, vectorizer_path)
-    prediction = predictor.predict('This may be some hatespeech')
-    print(prediction)
+    for text in texts:
+        print("============Trying out with text==============")
+        print(text)
+        prediction, scores = predictor.predict(text)
+        print(prediction)
+        print(scores)
 
 
 if __name__ == '__main__':
