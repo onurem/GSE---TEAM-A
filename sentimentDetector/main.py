@@ -12,7 +12,9 @@ def main():
     if os.path.exists(vectorizer_path):
         os.remove(vectorizer_path)
 
-    trainer = ModelTrainer()
+    script_root = os.path.dirname(__file__)
+    training_path = os.path.join(script_root, '../resources/auto_labled_data.csv')
+    trainer = ModelTrainer(training_path)
     trainer.train_model(model_path, vectorizer_path)
 
     texts = [

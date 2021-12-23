@@ -8,10 +8,13 @@ from sklearn.metrics import accuracy_score
 
 class ModelTrainer:
 
+    def __init__(self, path_to_training_data):
+        self.path_to_training_data = path_to_training_data
+
     def read_data(self):
-        df = pd.read_csv("resources/auto_labled_data.csv")
+        df = pd.read_csv(self.path_to_training_data)
         df['class'] = df['class'].apply(self.classification)
-        df = df.drop(columns=['Unnamed: 0', 'count', 'hate_speech', 'offensive_language', 'neither'])
+        df = df.drop(columns=['Unnamed: 0', 'count', 'hate_speech', 'offensive_language', 'neither'], errors='ignore')
         return df
 
     @staticmethod
