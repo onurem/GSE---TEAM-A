@@ -21,7 +21,7 @@ class TestSentimentDetector:
             os.remove(self.vectorizer_path)
 
     def test_load_data(self):
-        small_set_path = os.path.join(self.script_root, 'testdata/small_set.csv')
+        small_set_path = os.path.join(self.script_root, 'testdata/small_set_classified.csv')
         classified_set_path = os.path.join(self.script_root, 'testdata/small_set_classified.csv')
         trainer = ModelTrainer(small_set_path)
         actual_data = pd.read_csv(classified_set_path)

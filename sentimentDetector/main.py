@@ -13,7 +13,7 @@ def main():
         os.remove(vectorizer_path)
 
     script_root = os.path.dirname(__file__)
-    training_path = os.path.join(script_root, '../resources/auto_labled_data.csv')
+    training_path = os.path.join(script_root, '../resources/training_data.csv')
     trainer = ModelTrainer(training_path)
     trainer.train_model(model_path, vectorizer_path)
 
