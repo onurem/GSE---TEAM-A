@@ -43,9 +43,10 @@ class TestSentimentDetector:
         trainer.train_model(self.model_path, self.vectorizer_path)
         predictor = Predictor(self.model_path, self.vectorizer_path)
 
-        result, confidence = predictor.predict('Unknown fine text')
+        result = predictor.predict('Unknown fine text')
 
-        assert result == 'neither'
+        assert result.predicted_class == 'neither'
+        confidence = result.confidences
         assert confidence['neither'] > 0
         assert confidence['hate_speech'] >= 0
         assert confidence['neither'] > confidence['hate_speech']
