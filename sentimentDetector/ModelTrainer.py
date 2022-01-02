@@ -12,10 +12,23 @@ class ModelTrainer:
         self.path_to_training_data = path_to_training_data
 
     def read_data(self) -> pd.DataFrame:
+        """Loads the configured data
+
+        :returns:
+        DataFrame
+            A pandas DataFrame holding the file's data
+        """
         df = pd.read_csv(self.path_to_training_data)
         return df
 
     def train_model(self, model_path: str, vectorizer_path: str) -> None:
+        """Trains a model and a vectorizer
+
+        :param model_path: str
+            Path to where the model will be stored
+        :param vectorizer_path: str
+            Path to where the according vectorizer will be stored
+        """
         text_col = 'tweet'
         label = 'class'
 
