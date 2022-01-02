@@ -11,11 +11,11 @@ class ModelTrainer:
     def __init__(self, path_to_training_data):
         self.path_to_training_data = path_to_training_data
 
-    def read_data(self):
+    def read_data(self) -> pd.DataFrame:
         df = pd.read_csv(self.path_to_training_data)
         return df
 
-    def train_model(self, model_path, vectorizer_path):
+    def train_model(self, model_path: str, vectorizer_path: str) -> None:
         text_col = 'tweet'
         label = 'class'
 
@@ -51,7 +51,7 @@ class ModelTrainer:
     # region private functions
 
     @staticmethod
-    def _classification(x):
+    def _classification(x) -> str:
         if x == 0:
             return "hate_speech"
         if x == 1:
@@ -60,7 +60,7 @@ class ModelTrainer:
             return "neither"
 
     @staticmethod
-    def _score(classifier, x_test, x_train, x, y_test, y_train, y):
+    def _score(classifier, x_test, x_train, x, y_test, y_train, y) -> None:
         y_test_pred = classifier.predict(x_test)
         y_train_pred = classifier.predict(x_train)
         y_pred = classifier.predict(x)
@@ -74,7 +74,7 @@ class ModelTrainer:
         print(f'Train:   {accuracy_score(y_train, y_train_pred) * 100:6.2f}%')
         print(f'Overall: {accuracy_score(y, y_pred) * 100:6.2f}%')
 
-    def _train_classifier(self, x_train, x_test, x, y_train, y_test, y):
+    def _train_classifier(self, x_train, x_test, x, y_train, y_test, y) -> LinearSVC:
 
         clf = LinearSVC(C=1.0, max_iter=10000)
 
@@ -85,7 +85,7 @@ class ModelTrainer:
         return clf
 
     @staticmethod
-    def _split_train_test(test_size, x, y):
+    def _split_train_test(test_size: float, x, y):
         if test_size > 0.0:
             return train_test_split(x, y,
                                     test_size=test_size,
