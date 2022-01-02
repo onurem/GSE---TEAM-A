@@ -27,9 +27,9 @@ def main():
     for text in texts:
         print("============Trying out with text==============")
         print(text)
-        prediction, scores = predictor.predict(text)
-        print(prediction)
-        print(scores)
+        prediction = predictor.predict(text)
+        print(prediction.predicted_class)
+        print(prediction.confidences)
 
 
 if __name__ == '__main__':
