@@ -1,8 +1,6 @@
 import pickle
 from sklearn.svm import LinearSVC
-
-from sentimentDetector.Prediction import Prediction
-
+from sources.Prediction import Prediction
 
 class Predictor:
     clf: LinearSVC
