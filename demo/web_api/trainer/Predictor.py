@@ -1,7 +1,7 @@
 import pickle
 from sklearn.svm import LinearSVC
 
-from demo.web_api.Prediction import Prediction
+from trainer.Prediction import Prediction
 
 
 class Predictor:
