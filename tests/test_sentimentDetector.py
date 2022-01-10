@@ -2,8 +2,8 @@
 import os
 import pandas as pd
 
-from sentimentDetector.ModelTrainer import ModelTrainer
-from sentimentDetector.Predictor import Predictor
+from demo.web_api.ModelTrainer import ModelTrainer
+from demo.web_api.Predictor import Predictor
 
 
 class TestSentimentDetector:
