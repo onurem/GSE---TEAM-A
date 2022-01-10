@@ -1,65 +1,62 @@
-import os
 import glob
-import pickle
+import logging
 from flask import Flask, request, jsonify, render_template
 from langdetect import detect
 from flask_cors import cross_origin, CORS
 
+from models.model_manager import ModelManager
+
 app = Flask(__name__, static_folder='static/static', template_folder='static')
+app.logger.setLevel(logging.INFO)
 app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app)
 
-logger = app.logger
+MODEL_MANAGER = None
 
-def get_path_model(filename):
-    PATH_TO_MODELS = 'models'
-    return os.path.join(PATH_TO_MODELS, filename)
+@app.before_first_request
+def on_start():
+    logger = app.logger
+    logger.info("on_start run")
 
-
-def load_model():
-    logger.info('== Loading classifiers ==')
-
-    try:
-        if len(models) == 0:
-            models['v0'] = pickle.load(
-                open(
-                    get_path_model('hateless_v0.pkl'), 'rb'))
-
-            vtrizers['v0'] = pickle.load(
-                open(
-                    get_path_model('vectorizer_v0.pkl'), 'rb'))
-    except Exception as err:
-        logger.error('Failed to process file %s', err)
-
-
-models = {}
-vtrizers = {}
-load_model()
+    global MODEL_MANAGER
+    MODEL_MANAGER = ModelManager('models', logger)
+    MODEL_MANAGER.load_all_models()
 
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
+@app.route('/admin/models')
+def list_models():
+    """
+        List available models in memory
+    """
+    global MODEL_MANAGER
+    return jsonify(list(MODEL_MANAGER.models.keys()))
 
 @app.route('/<version>/predict', methods=['POST'])
 def predict(version):
-    msg = ""
-    model = models.get(version, None)
-    vectorizer = vtrizers.get(version, None)
+    logger = app.logger
+    global model_manager
 
-    if model is not None:
+    msg = ""
+
+    classifier, vectorizer = MODEL_MANAGER.models.get(version, None)
+
+    if classifier is not None:
         try:
             msg = request.form['message']
-            logger.info('processing %s', msg)
-            lang = detect(msg)
-            assert lang, 'en'
+            logger.info('Processing %s', msg)
+
+            msg_lang = detect(msg)
+            assert msg_lang, 'en'
 
             w_vect = vectorizer.transform([msg])
-            pred = models['v0'].predict_proba(w_vect.reshape(1, -1))[0]
+            pred = classifier.predict_proba(w_vect.reshape(1, -1))[0]
+
             return jsonify(pred.tolist())
 
         except AssertionError as error:
-            logger.error("Failed to process msg=%s, reason=%s", msg, error)
-            return f'Failed to classify, msg={msg}, reason={error}', 400
+            return f'Language message is not EN, err={error}', 400
 
     return 'No model found'
