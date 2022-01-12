@@ -15,7 +15,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const SAMPLE_SENTENCES = [
-    "As long as the Lakers trash from now on, I could careless. And that's real"
+    "As long as the Lakers trash from now on, I could careless. And that's real."
 ]
 
 export default function DemoForm() {
@@ -74,9 +74,11 @@ export default function DemoForm() {
                     </Button>
                     {CheckResult ?
                         <Alert onClose={() => { }}>
-                            Offen: {Number(CheckResult[0] * 100).toFixed(2)}%,&nbsp;
+                            Offensive: {Number(CheckResult[0] * 100).toFixed(2)}%,&nbsp;
                             Hate: {Number(CheckResult[1] * 100).toFixed(2)}%,&nbsp;
-                            Other: {Number(CheckResult[2] * 100).toFixed(2)}%
+                            Other: {Number(CheckResult[2] * 100).toFixed(2)}%,&nbsp;
+                            Sarcasm: {Number(0).toFixed(2)}%,&nbsp;
+                            Sexism: {Number(0).toFixed(2)}%
                         </Alert> : ''}
                 </Box>
             </Box>

@@ -5,7 +5,6 @@ import Dashboard from './components/Dashboard';
 import MainView from './dashboard_views/MainView';
 import DemoForm from './components/DemoForm';
 
-import { useState } from 'react';
 import AuthProvider, { RequireAuth } from './components/AuthProvider';
 import SignInSide from './components/SignIn';
 
