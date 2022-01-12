@@ -1,6 +1,6 @@
 import os
 
-from utils import convert_pg_uri
+from my_utils import convert_pg_uri
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
