@@ -1,11 +1,14 @@
+from functools import wraps
 import logging
 import os
 
-import json
 from flask import Flask, request, jsonify, render_template
+from flask.helpers import make_response
 from flask_cors import CORS
 
 from langdetect import detect
+from account import Account
+from my_utils import TokenUtils
 
 from models.model_manager import ModelManager
 import database
@@ -17,7 +20,7 @@ app.config.from_object(config_file)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 cors = CORS(app)
-
+auth_utils = TokenUtils(app)
 
 database.init_app(app)
 commands.init_app(app)
@@ -25,12 +28,14 @@ commands.init_app(app)
 app.logger.setLevel(logging.INFO)
 MODEL_MANAGER = None
 
+
 @app.before_first_request
 def on_start():
     global config_file
     logger = app.logger
     logger.info("Event handler on start is running")
-    logger.info('Config loaded, name=%s\nproperties=%s', config_file, app.config)
+    logger.info('Config loaded, name=%s\nproperties=%s',
+                config_file, app.config)
 
     global MODEL_MANAGER
     MODEL_MANAGER = ModelManager('models', logger)
@@ -49,6 +54,88 @@ def list_models():
     """
     global MODEL_MANAGER
     return jsonify(list(MODEL_MANAGER.models.keys()))
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+
+        if not token:
+            return jsonify({
+                'status': 'fail',
+                'message': 'Missing token!'
+            }), 401
+
+        current_user = None
+        try:
+            payload, err_msg = auth_utils.decode_auth_token(token)
+
+            if payload:
+                current_user = Account.get_by_id(payload['sub'])
+
+            if current_user is None:
+                return jsonify({
+                    'status': 'fail',
+                    'message': f'Invalid token! Reason={err_msg}'
+                }), 401
+
+        except Exception:
+            return jsonify({
+                'status': 'fail',
+                'message': 'Failed to decode token'
+            }), 401
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
+
+@app.route('/auth/login', methods=['POST'])
+def auth_login():
+    email = request.form['email']
+    password = request.form['password']
+
+    try:
+        account = Account.get(email)
+        if (account is not None) and (database.bcrypt.check_password_hash(
+            account.password,
+            password
+        )):
+            auth_token = auth_utils.encode_auth_token(account.id)
+            if auth_token:
+                res = {
+                    'status': 'success',
+                    'message': 'Succesful logged in',
+                    'auth_token': auth_token
+                }
+
+                return jsonify(res), 200
+
+        res = {
+            'status': 'fail',
+            'message': 'user not exist or auth token encoding failed'
+        }
+
+        return jsonify(res), 404
+    except Exception as e:
+        app.logger.error('Unexpected error = %s, msg=%s', e.__class__, e)
+        res = {
+            'status': 'fail',
+            'message': f'Unexpected error {e}'
+        }
+        return jsonify(res), 500
+
+
+@app.route('/auth/validate', methods=['GET'])
+@token_required
+def auth_validate(current_user: Account):
+    return jsonify({
+        'status': 'success',
+        'message': f'welcome {current_user.email}'
+    })
 
 
 @app.route('/<version>/predict', methods=['POST'])
