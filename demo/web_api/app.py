@@ -8,6 +8,8 @@ from flask_cors import CORS
 
 from langdetect import detect
 from account import Account
+from trainer.Prediction import Prediction
+from trainer.Predictor import Predictor
 from my_utils import TokenUtils
 
 from models.model_manager import ModelManager
@@ -26,8 +28,7 @@ database.init_app(app)
 commands.init_app(app)
 
 app.logger.setLevel(logging.INFO)
-MODEL_MANAGER = None
-
+MODEL_MANAGER:ModelManager = None
 
 @app.before_first_request
 def on_start():
@@ -137,7 +138,6 @@ def auth_validate(current_user: Account):
         'message': f'welcome {current_user.email}'
     })
 
-
 @app.route('/<version>/predict', methods=['POST'])
 def predict(version):
     logger = app.logger
@@ -145,9 +145,10 @@ def predict(version):
 
     msg = ""
 
-    classifier, vectorizer = MODEL_MANAGER.models.get(version, None)
+    # classifier, vectorizer = MODEL_MANAGER.models.get(version, None)
+    predictor: Predictor = MODEL_MANAGER.predictor_factory.get_predictor(version)
 
-    if classifier is not None:
+    if predictor is not None:
         try:
             msg = request.form['message']
             logger.info('Processing %s', msg)
@@ -155,10 +156,12 @@ def predict(version):
             msg_lang = detect(msg)
             assert msg_lang, 'en'
 
-            w_vect = vectorizer.transform([msg])
-            pred = classifier.predict_proba(w_vect.reshape(1, -1))[0]
+            rs: Prediction = predictor.predict(msg)
 
-            return jsonify(pred.tolist())
+            return jsonify({
+                'label': rs.predicted_class,
+                'confidences': rs.confidences
+            }), 200
 
         except AssertionError as error:
             return f'Language message is not EN, err={error}', 400

@@ -7,6 +7,8 @@ from typing import Tuple
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+from trainer.PredictorFactory import PredictorFactory
+
 class ModelManager:
     """
         To load/check availability of pickled models
@@ -17,6 +19,7 @@ class ModelManager:
             Constructor for ModelManager
         """
         self.models = {}
+        self.predictor_factory = PredictorFactory()
         self.path_to_models = models_path
         self.logger = logger
 
@@ -30,8 +33,10 @@ class ModelManager:
         """
             Unpickle SVC and Vectorizer pair
         """
-        return (pickle.load(open(self.get_path_model(f'hateless_{version}.pkl'), 'rb')),
-                pickle.load(open(self.get_path_model(f'vectorizer_{version}.pkl'), 'rb')))
+        clf = pickle.load(open(self.get_path_model(f'hateless_{version}.pkl'), 'rb'))
+        vt = pickle.load(open(self.get_path_model(f'vectorizer_{version}.pkl'), 'rb'))
+        self.predictor_factory.add_predictor(version, clf, vt)
+        return (clf, vt)
 
     def load_model(self, version):
         """
