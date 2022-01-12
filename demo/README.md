@@ -75,6 +75,13 @@ npm install       # npm installs dependencies and saves it to ./node_modules
 npm run start     # react is built and deployed locally
 ```
 
+If you just want to use a model then execute the following command __from
+the repository's root__ (requires the training set to be available at
+this_repository/resources/training_data.csv):
+```
+python -m demo.web_api.main
+```
+
 ### 3. Deployment plan
 
 - Platform: Heroku
