@@ -13,6 +13,10 @@ import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Chip, Stack } from '@mui/material';
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
 const SAMPLE_SENTENCES = [
     "As long as the Lakers trash from now on, I could careless. And that's real."
@@ -32,7 +36,7 @@ export default function DemoForm() {
         fetch(`https://hateless.herokuapp.com/v1/predict`, opts)
             .then(rs => rs.json())
             .then(rs => {
-                setCheckResult(rs)
+                setCheckResult(rs['confidences'])
             })
         // eslint-disable-next-line no-console
     };
@@ -73,13 +77,45 @@ export default function DemoForm() {
                         Check it
                     </Button>
                     {CheckResult ?
-                        <Alert onClose={() => { }}>
-                            Offensive: {Number(CheckResult[0] * 100).toFixed(2)}%,&nbsp;
-                            Hate: {Number(CheckResult[1] * 100).toFixed(2)}%,&nbsp;
-                            Other: {Number(CheckResult[2] * 100).toFixed(2)}%,&nbsp;
-                            Sarcasm: {Number(0).toFixed(2)}%,&nbsp;
-                            Sexism: {Number(0).toFixed(2)}%
-                        </Alert> : ''}
+                        <Box
+                            sx={{
+                                marginTop: 3,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Stack direction="row" spacing={1}>
+                                <Chip
+                                    color="error"
+                                    icon={<ThumbDownOffAltIcon />}
+                                    label={'offensive: ' + Number(CheckResult['offensive_language'] * 100).toFixed(2)} />
+                                <Chip
+                                    color="secondary"
+                                    icon={<LocalFireDepartmentIcon />}
+                                    label={'hate_speech: ' + Number(CheckResult['hate_speech'] * 100).toFixed(2)} />
+                                <Chip
+                                    color="success"
+                                    icon={<ThumbUpIcon />}
+                                    label={'normal: ' + Number(CheckResult['neither'] * 100).toFixed(2)} />
+                            </Stack>,
+                            <Stack direction="row" spacing={1}>
+                                <Chip
+                                    icon={<LocalFireDepartmentIcon />}
+                                    label={'sacarsm: ' + Number(0).toFixed(2)} />
+                                <Chip
+                                    icon={<ThumbUpIcon />}
+                                    label={'sexism: ' + Number(0).toFixed(2)} />
+                            </Stack>
+                        </Box>
+                        // <Alert onClose={() => { }}>
+                        //     Offensive: {Number(CheckResult['offensive_language'] * 100).toFixed(2)}%,&nbsp;
+                        //     Hate: {Number(CheckResult['hate_speech'] * 100).toFixed(2)}%,&nbsp;
+                        //     Normal: {Number(CheckResult['neither'] * 100).toFixed(2)}%,&nbsp;
+                        //     Sarcasm: {Number(0).toFixed(2)}%,&nbsp;
+                        //     Sexism: {Number(0).toFixed(2)}%
+                        // </Alert> :
+                        : ''}
                 </Box>
             </Box>
         </Container>

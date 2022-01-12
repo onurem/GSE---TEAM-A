@@ -15,11 +15,14 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Copyright from './Copyright';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import { Alert, Snackbar } from '@mui/material';
 
 const theme = createTheme();
 
 export default function SignInSide() {
   const [emailErr, setEmailErr] = React.useState(null)
+  const [errMsg, setErrMsg] = React.useState('')
+  const [open, setOpen] = React.useState(false);
 
   let navigate = useNavigate();
   let location = useLocation();
@@ -36,8 +39,12 @@ export default function SignInSide() {
     });
 
     let email = data.get('email')
-    auth.signin(email, () => {
+    let password = data.get('password')
+    auth.signin(email, password, () => {
       navigate(from, { replace: true })
+    }, err => {
+      setOpen(true)
+      setErrMsg(err)
     });
   };
 
@@ -47,6 +54,14 @@ export default function SignInSide() {
     } else {
       setEmailErr('Invalid email format')
     }
+  };
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
   };
 
   return (
@@ -136,6 +151,11 @@ export default function SignInSide() {
           </Box>
         </Grid>
       </Grid>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="error">
+          {errMsg}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

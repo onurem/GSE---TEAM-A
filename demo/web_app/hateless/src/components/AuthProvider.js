@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom';
-import { fakeAuthProvider } from './Utils';
+import { fakeAuthProvider, fetchApi } from './Utils';
 
 let AuthContext = React.createContext(null);
 
@@ -26,11 +26,27 @@ function RequireAuth({ children }) {
 export default function AuthProvider(props) {
     let [user, setUser] = React.useState(null);
 
-    let signin = (newUser, callback) => {
-        return fakeAuthProvider.signin(() => {
-            setUser(newUser);
-            callback();
-        });
+    let signin = (newUser, password, callback, errCallback) => {
+        // return fakeAuthProvider.signin(() => {
+        //     setUser(newUser);
+        //     callback();
+        // });
+        let formData = new FormData();
+        formData.append('email', newUser)
+        formData.append('password', password)
+
+        fetchApi('https://hateless.herokuapp.com/auth/login', {
+            method: 'POST',
+            body: formData
+        })
+            .then(rs => {
+                setUser(newUser);
+                callback();
+            })
+            .catch(err => {
+                console.log("Error ", err)
+                errCallback(err)
+            })
     };
 
     let signout = callback => {
