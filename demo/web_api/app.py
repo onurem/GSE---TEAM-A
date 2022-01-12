@@ -1,6 +1,7 @@
 import logging
 import os
 
+import json
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
@@ -12,8 +13,6 @@ import commands
 
 app = Flask(__name__, static_folder='static/static', template_folder='static')
 config_file = os.environ.get("APP_SETTINGS", "config.StagingConfig")
-app.logger.info('==== Config loaded, name=%s', config_file)
-
 app.config.from_object(config_file)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -28,8 +27,10 @@ MODEL_MANAGER = None
 
 @app.before_first_request
 def on_start():
+    global config_file
     logger = app.logger
     logger.info("Event handler on start is running")
+    logger.info('Config loaded, name=%s\nproperties=%s', config_file, app.config)
 
     global MODEL_MANAGER
     MODEL_MANAGER = ModelManager('models', logger)
