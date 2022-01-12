@@ -9,8 +9,7 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = 'simple_secret'
-    SQLALCHEMY_DATABASE_URI = convert_pg_uri(
-        os.environ.get('DATABASE_URL',
+    SQLALCHEMY_DATABASE_URI = convert_pg_uri(os.environ.get('DATABASE_URL',
                        'postgresql://localhost:5432/hateless_dev?user=dev_user&password=abc123456')
     )
 
