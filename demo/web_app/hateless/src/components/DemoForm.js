@@ -19,7 +19,21 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
 const SAMPLE_SENTENCES = [
-    "As long as the Lakers trash from now on, I could careless. And that's real."
+    "As long as the Lakers trash from now on, I could careless. And that's real.",
+    "I wanna have sex with my mom fuck her right in that pussy where I came from",
+    "You a woulda coulda shoulda ass hoe",
+    "Glad I'm getting outta Atlanta. Nothing but a bunch of niggas in &amp; outta jail &amp; dumb bitches with mad kids fuckin em",
+    "Who wants to get there nose in these bad bois then #scally #chav #sockfetish #stinking http://t.co/FeQxgN0W6I",
+    "I got hicks lol",
+    "This new twitter is confusing the shit out of me. Go back to south america bitch",
+    "@_WhitePonyJr_ Ariza is a snake and a coward but at least he isn't a cripple like your hero Roach lmaoo",
+    "@Poffalicious: Andrewbryant: Poff has double vision after 2 beers... Double pussy",
+    "I teach u how to get curved? That's all I know",
+    "Would you still love me when I'm no longer young and beautiful? No. Ugly monkey ass",
+    "@Theo17100: http://t.co/BYj1HOyhmG this scally lad would get it",
+    "A smuggler explains how he helped fighters along the Jihadi Highway",
+    "@ItsNotAdam is bored supposed to be cute, you faggot?",
+    "@jayswaggkillah: Jackies a retard #blondeproblems At least I can make a grilled cheese!"
 ]
 
 export default function DemoForm() {
