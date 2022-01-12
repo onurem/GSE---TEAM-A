@@ -38,6 +38,7 @@ const SAMPLE_SENTENCES = [
 
 export default function DemoForm() {
     const [CheckResult, setCheckResult] = React.useState(null)
+    const [testId, setTestId] = React.useState(0)
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -54,7 +55,6 @@ export default function DemoForm() {
             })
         // eslint-disable-next-line no-console
     };
-    let sent_id = Math.floor(Math.random() * SAMPLE_SENTENCES.length);
 
     return (
         <Container component="main" maxWidth="xs">
@@ -79,17 +79,30 @@ export default function DemoForm() {
                         minRows={4}
                         aria-label="maximum height"
                         placeholder="Sample text to analyze"
-                        defaultValue={SAMPLE_SENTENCES[sent_id]}
+                        value={SAMPLE_SENTENCES[testId]}
                         style={{ width: 400 }}
                     />
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                    >
-                        Check it
-                    </Button>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                        >
+                            Check it
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            onClick={() => {
+                                let newId = Math.floor(Math.random() * SAMPLE_SENTENCES.length);
+                                console.log("New id", newId)
+                                setTestId(newId)
+                                
+                            }}
+                        >
+                            New random
+                        </Button>
+                    </Stack>
                     {CheckResult ?
                         <Box
                             sx={{
@@ -103,15 +116,15 @@ export default function DemoForm() {
                                 <Chip
                                     color="error"
                                     icon={<ThumbDownOffAltIcon />}
-                                    label={'offensive: ' + Number(CheckResult['offensive_language'] * 100).toFixed(2)} />
+                                    label={'offensive: ' + Number(CheckResult['offensive_language'] * 100).toFixed(2) + "%"} />
                                 <Chip
                                     color="secondary"
                                     icon={<LocalFireDepartmentIcon />}
-                                    label={'hate_speech: ' + Number(CheckResult['hate_speech'] * 100).toFixed(2)} />
+                                    label={'hate_speech: ' + Number(CheckResult['hate_speech'] * 100).toFixed(2) + "%"} />
                                 <Chip
                                     color="success"
                                     icon={<ThumbUpIcon />}
-                                    label={'normal: ' + Number(CheckResult['neither'] * 100).toFixed(2)} />
+                                    label={'normal: ' + Number(CheckResult['neither'] * 100).toFixed(2) + "%"} />
                             </Stack>,
                             <Stack direction="row" spacing={1}>
                                 <Chip
