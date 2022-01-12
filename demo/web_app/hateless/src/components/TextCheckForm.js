@@ -89,7 +89,9 @@ export default function TextCheckForm() {
                             <Alert onClose={() => { }}>
                                 Offen: {Number(CheckResult[0]*100).toFixed(2)}%,&nbsp;
                                 Hate: {Number(CheckResult[1]*100).toFixed(2)}%,&nbsp;
-                                Other: {Number(CheckResult[2]*100).toFixed(2)}%
+                                Other: {Number(CheckResult[2]*100).toFixed(2)}%,&nbsp;
+                                Sarcasm: {Number(0).toFixed(2)}%,&nbsp;
+                                Sexism: {Number(0).toFixed(2)}%
                             </Alert> : ''}
                     </Box>
                 </Box>
