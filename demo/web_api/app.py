@@ -4,7 +4,7 @@ import os
 
 from flask import Flask, request, jsonify, render_template
 from flask.helpers import make_response
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 from langdetect import detect
 from account import Account
@@ -19,6 +19,7 @@ import commands
 app = Flask(__name__, static_folder='static/static', template_folder='static')
 config_file = os.environ.get("APP_SETTINGS", "config.StagingConfig")
 app.config.from_object(config_file)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 cors = CORS(app)
