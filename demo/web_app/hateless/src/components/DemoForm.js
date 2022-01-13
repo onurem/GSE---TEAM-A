@@ -102,7 +102,7 @@ export default function DemoForm() {
                             variant="contained"
                             onClick={() => {
                                 let newId = Math.floor(Math.random() * SAMPLE_SENTENCES.length);
-                                setTextVal(SAMPLE_SENTENCES[testId])
+                                setTextVal(SAMPLE_SENTENCES[newId])
                             }}
                         >
                             New random
