@@ -39,6 +39,8 @@ const SAMPLE_SENTENCES = [
 export default function DemoForm() {
     const [CheckResult, setCheckResult] = React.useState(null)
     const [testId, setTestId] = React.useState(0)
+    const [textVal, setTextVal] = React.useState('')
+    const inputEl = React.useRef(null);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -55,6 +57,10 @@ export default function DemoForm() {
             })
         // eslint-disable-next-line no-console
     };
+
+    const handleChange = (e) => {
+        setTextVal(e.target.value)
+    }
 
     return (
         <Container component="main" maxWidth="xs">
@@ -75,11 +81,12 @@ export default function DemoForm() {
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <TextareaAutosize
+                        value={textVal}
+                        onChange={handleChange}
                         name="message"
                         minRows={4}
                         aria-label="maximum height"
                         placeholder="Sample text to analyze"
-                        value={SAMPLE_SENTENCES[testId]}
                         style={{ width: 400 }}
                     />
                     <Stack direction="row" spacing={1}>
@@ -95,9 +102,7 @@ export default function DemoForm() {
                             variant="contained"
                             onClick={() => {
                                 let newId = Math.floor(Math.random() * SAMPLE_SENTENCES.length);
-                                console.log("New id", newId)
-                                setTestId(newId)
-                                
+                                setTextVal(SAMPLE_SENTENCES[testId])
                             }}
                         >
                             New random
