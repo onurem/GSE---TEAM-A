@@ -142,7 +142,7 @@ cython_debug/
 
 # Project specifics
 resources/
-*.pkl
+# *.pkl
 
 # Vscode
 .vscode/

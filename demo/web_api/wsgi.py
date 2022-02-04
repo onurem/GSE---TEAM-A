@@ -1,6 +1,4 @@
-from flask.json import load
-from app import app, load_model
+from app import app
 
 if __name__ == "__main__":
-    load_model()
     app.run()

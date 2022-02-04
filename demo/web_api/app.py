@@ -1,65 +1,170 @@
+from functools import wraps
+import logging
 import os
-import glob
-import pickle
+
 from flask import Flask, request, jsonify, render_template
+from flask.helpers import make_response
+from flask_cors import CORS, cross_origin
+
 from langdetect import detect
-from flask_cors import cross_origin, CORS
+from account import Account
+from trainer.Prediction import Prediction
+from trainer.Predictor import Predictor
+from my_utils import TokenUtils
+
+from models.model_manager import ModelManager
+import database
+import commands
 
 app = Flask(__name__, static_folder='static/static', template_folder='static')
+config_file = os.environ.get("APP_SETTINGS", "config.StagingConfig")
+app.config.from_object(config_file)
 app.config['CORS_HEADERS'] = 'Content-Type'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 cors = CORS(app)
+auth_utils = TokenUtils(app)
 
-logger = app.logger
+database.init_app(app)
+commands.init_app(app)
 
-def get_path_model(filename):
-    PATH_TO_MODELS = 'models'
-    return os.path.join(PATH_TO_MODELS, filename)
+app.logger.setLevel(logging.INFO)
+MODEL_MANAGER:ModelManager = None
 
+@app.before_first_request
+def on_start():
+    global config_file
+    logger = app.logger
+    logger.info("Event handler on start is running")
+    logger.info('Config loaded, name=%s\nproperties=%s',
+                config_file, app.config)
 
-def load_model():
-    logger.info('== Loading classifiers ==')
+    global MODEL_MANAGER
+    MODEL_MANAGER = ModelManager('models', logger)
+    MODEL_MANAGER.load_all_models()
 
-    try:
-        if len(models) == 0:
-            models['v0'] = pickle.load(
-                open(
-                    get_path_model('hateless_v0.pkl'), 'rb'))
-
-            vtrizers['v0'] = pickle.load(
-                open(
-                    get_path_model('vectorizer_v0.pkl'), 'rb'))
-    except Exception as err:
-        logger.error('Failed to process file %s', err)
-
-
-models = {}
-vtrizers = {}
-load_model()
 
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
 
+@app.route('/admin/models')
+def list_models():
+    """
+        List available models in memory
+    """
+    global MODEL_MANAGER
+    return jsonify(list(MODEL_MANAGER.models.keys()))
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+
+        if not token:
+            return jsonify({
+                'status': 'fail',
+                'message': 'Missing token!'
+            }), 401
+
+        current_user = None
+        try:
+            payload, err_msg = auth_utils.decode_auth_token(token)
+
+            if payload:
+                current_user = Account.get_by_id(payload['sub'])
+
+            if current_user is None:
+                return jsonify({
+                    'status': 'fail',
+                    'message': f'Invalid token! Reason={err_msg}'
+                }), 401
+
+        except Exception:
+            return jsonify({
+                'status': 'fail',
+                'message': 'Failed to decode token'
+            }), 401
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
+
+@app.route('/auth/login', methods=['POST'])
+def auth_login():
+    email = request.form['email']
+    password = request.form['password']
+
+    try:
+        account = Account.get(email)
+        if (account is not None) and (database.bcrypt.check_password_hash(
+            account.password,
+            password
+        )):
+            auth_token = auth_utils.encode_auth_token(account.id)
+            if auth_token:
+                res = {
+                    'status': 'success',
+                    'message': 'Succesful logged in',
+                    'auth_token': auth_token
+                }
+
+                return jsonify(res), 200
+
+        res = {
+            'status': 'fail',
+            'message': 'user not exist or auth token encoding failed'
+        }
+
+        return jsonify(res), 404
+    except Exception as e:
+        app.logger.error('Unexpected error = %s, msg=%s', e.__class__, e)
+        res = {
+            'status': 'fail',
+            'message': f'Unexpected error {e}'
+        }
+        return jsonify(res), 500
+
+
+@app.route('/auth/validate', methods=['GET'])
+@token_required
+def auth_validate(current_user: Account):
+    return jsonify({
+        'status': 'success',
+        'message': f'welcome {current_user.email}'
+    })
+
 @app.route('/<version>/predict', methods=['POST'])
 def predict(version):
-    msg = ""
-    model = models.get(version, None)
-    vectorizer = vtrizers.get(version, None)
+    logger = app.logger
+    global model_manager
 
-    if model is not None:
+    msg = ""
+
+    # classifier, vectorizer = MODEL_MANAGER.models.get(version, None)
+    predictor: Predictor = MODEL_MANAGER.predictor_factory.get_predictor(version)
+
+    if predictor is not None:
         try:
             msg = request.form['message']
-            logger.info('processing %s', msg)
-            lang = detect(msg)
-            assert lang, 'en'
+            logger.info('Processing %s', msg)
 
-            w_vect = vectorizer.transform([msg])
-            pred = models['v0'].predict_proba(w_vect.reshape(1, -1))[0]
-            return jsonify(pred.tolist())
+            msg_lang = detect(msg)
+            assert msg_lang, 'en'
+
+            rs: Prediction = predictor.predict(msg)
+
+            return jsonify({
+                'label': rs.predicted_class,
+                'confidences': rs.confidences
+            }), 200
 
         except AssertionError as error:
-            logger.error("Failed to process msg=%s, reason=%s", msg, error)
-            return f'Failed to classify, msg={msg}, reason={error}', 400
+            return f'Language message is not EN, err={error}', 400
 
     return 'No model found'
