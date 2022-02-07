@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
-from ModelTrainer import ModelTrainer
-from Predictor import Predictor
+from demo.web_api.ModelTrainer import ModelTrainer
+from demo.web_api.Predictor import Predictor
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
         os.remove(vectorizer_path)
 
     script_root = os.path.dirname(__file__)
-    training_path = os.path.join(script_root, '../resources/training_data.csv')
+    training_path = os.path.join(script_root, '../../resources/training_data.csv')
     trainer = ModelTrainer(training_path)
     trainer.train_model(model_path, vectorizer_path)
 

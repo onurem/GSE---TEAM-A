@@ -89,7 +89,12 @@ class ModelTrainer:
 
     def _train_classifier(self, x_train, x_test, x, y_train, y_test, y) -> LinearSVC:
 
-        clf = LinearSVC(C=1.0, max_iter=10000)
+        clf = LinearSVC(C=1.0,
+                        dual=False,
+                        loss='squared_hinge',
+                        max_iter=50,
+                        multi_class='ovr',
+                        penalty='l1')
 
         clf.fit(x_train, y_train)
 
